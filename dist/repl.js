@@ -1,56 +1,59 @@
-import { stdin, stdout } from "node:process";
-import { createInterface } from "node:readline";
-import { commandExit } from "./command_exit.js";
-import { commandHelp } from "./command_help.js";
-export function getCommnds() {
-    return {
-        exit: {
-            name: "exit",
-            description: "Exit the pokedex",
-            callback: commandExit,
-        },
-        help: {
-            name: "help",
-            description: "Displays a help message",
-            callback: commandHelp,
-        },
-        // Add more commands here
-    };
-}
-;
+// export function getCommnds(): Record<string, CLICommand> {
+//   return {
+// 		exit: {
+// 			name: "exit",
+// 			description: "Exit the pokedex",
+// 			callback: commandExit,
+// 		},
+// 		help: {
+// 			name: "help",
+// 			description: "Displays a help message",
+// 			callback: commandHelp,
+// 		},
+// 		// Add more commands here
+// 	};
+// };
 export function cleanInput(input) {
-    const words = input.toLowerCase().split(" ");
-    return words;
+    // const words: string[] = input.toLowerCase().split(" ");
+    // return words
+    return input.toLowerCase().trim().split(/\s+/).filter(((word) => word !== ""));
 }
 ;
-export function startREPL() {
-    let commands = getCommnds();
-    const readline = createInterface({
-        input: stdin,
-        output: stdout,
-        prompt: "Pokedex ❯ ",
-    });
-    readline.prompt();
-    readline.on('line', (input) => {
-        if (input.trim() === '') {
-            return readline.prompt();
-        }
+export async function startREPL(state) {
+    state.readline.prompt();
+    state.readline.on('line', async (input) => {
         const words = cleanInput(input);
-        for (let word in words) {
-            // console.log(`You entered ${words[word]}`);
-            if (words[word] in commands) {
-                try {
-                    commands[words[word]].callback(commands);
-                }
-                catch (error) {
-                    console.error(error);
-                }
-            }
-            else {
-                console.log(`Unknown command`);
-            }
+        if (words.length === 0) {
+            state.readline.prompt();
+            return;
+        }
+        const commandName = words[0];
+        const args = words.slice(1);
+        const cmd = state.commands[commandName];
+        if (!cmd) {
+            console.log(`Unknown command: "${commandName}". Type "help" for a list of commands.`);
+            state.readline.prompt();
+            return;
+        }
+        // for (let word in words) {
+        //   // console.log(`You entered ${words[word]}`);
+        //   if (words[word] in state.commands) {
+        //     try {
+        //       state.commands[words[word]].callback(state);
+        //     } catch (error) {
+        //       console.error(error);
+        //     }
+        //   } else {
+        //     console.log(`Unknown command: "${word}". Type "help" for a list of commands.`);
+        //   }
+        // }
+        try {
+            await cmd.callback(state, ...args);
+        }
+        catch (error) {
+            console.error(error);
         }
         // console.log(`Your command was: ${words[0]}`)
-        readline.prompt();
+        state.readline.prompt();
     });
 }

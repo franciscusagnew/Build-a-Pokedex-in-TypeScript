@@ -8,6 +8,11 @@
     "dev": "npx tsc && node dist/main.js",
     "test": "vitest --run"
   },
+  "vitest": {
+    "exclude": [
+      "**/dist/**"
+    ]
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
