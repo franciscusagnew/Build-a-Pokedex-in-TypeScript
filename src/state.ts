@@ -17,6 +17,7 @@ export type State = {
   pokeAPI: PokeAPI;
   nextLocation: string;
   prevLocation: string;
+  collectedPokemon: Record<string, any>;
 };
 
 export function initState(cacheInterval: number) {
@@ -32,5 +33,6 @@ export function initState(cacheInterval: number) {
     pokeAPI: new PokeAPI(cacheInterval),
     prevLocation: "",
     nextLocation: "",
+    collectedPokemon: {}
   };
 }

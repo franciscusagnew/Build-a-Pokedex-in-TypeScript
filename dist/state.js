@@ -14,5 +14,6 @@ export function initState(cacheInterval) {
         pokeAPI: new PokeAPI(cacheInterval),
         prevLocation: "",
         nextLocation: "",
+        collectedPokemon: {}
     };
 }
